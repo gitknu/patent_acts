@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const CONFIG = {
         balance: {
             title: 'Генератор постановки на баланс',
-            templateUrl: 'https://gitknu.github.io/patent_withdrawal/input_patent_balance.docx',
+            templateUrl: 'https://gitknu.github.io/patent_acts/input_patent_balance.docx',
             headers: ['#', 'Статус', 'Номер', 'Тип', 'Назва', 'Початок', 'Строк', 'Вартість', 'Підписує'],
             dataKeys: ['num_p', 'type', 'name', 'start', 'time', 'value', 'person'],
             placeholders: ['123456', 'в/к/т', 'МАШИНА ЧАСУ', '01.01.2020', '20', '1000,00', 'Тарас ШЕВЧЕНКО'],
@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         withdrawal: {
             title: 'Генератор актів списання',
-            templateUrl: 'https://gitknu.github.io/patent_withdrawal/input_patent_withdrawal.docx',
+            templateUrl: 'https://gitknu.github.io/patent_acts/input_patent_withdrawal.docx',
             headers: ['#', 'Статус', 'Номер', 'Тип', 'Назва', 'Номер НД', 'Початок', 'Кінець', 'Вартість', 'Підписує'],
             dataKeys: ['num_p', 'type', 'name', 'num_db', 'start', 'end', 'value', 'person'],
             placeholders: ['123456', 'в/к/т', 'МАШИНА ЧАСУ', '123456789', '01.01.2000', '31.12.2020', '1000,00', 'Тарас ШЕВЧЕНКО'],
