@@ -427,18 +427,44 @@ document.addEventListener('DOMContentLoaded', () => {
         if (colIndex === 3) {
             const v = cell.textContent.trim().toLowerCase();
             const typeMap = { 'в': 'винахід', 'к': 'корисну модель', 'т': 'торговельну марку' };
+            let fullType = '';
+
             if (v.length === 1 && typeMap[v]) {
-                cell.textContent = typeMap[v];
+                fullType = typeMap[v];
+                cell.textContent = fullType;
                 const range = document.createRange();
                 const sel = window.getSelection();
                 range.selectNodeContents(cell);
                 range.collapse(false);
                 sel.removeAllRanges();
                 sel.addRange(range);
+            } else {
+                 fullType = cell.textContent.trim();
             }
+
             const validTypes = Object.values(typeMap);
-            const isValid = value === '' || validTypes.includes(cell.textContent);
+            const isValid = value === '' || validTypes.includes(fullType);
             cell.classList.toggle('invalid', !isValid);
+
+            if (currentMode === 'balance' && isValid && fullType !== '') {
+                const termMap = {
+                    'торговельну марку': '8',
+                    'корисну модель': '10',
+                    'винахід': '20'
+                };
+                const defaultTerms = Object.values(termMap);
+                const newTerm = termMap[fullType];
+                const termCell = row.querySelector('td:nth-child(7) .editable-cell');
+
+                if (termCell && newTerm) {
+                    const currentTerm = termCell.textContent.trim();
+                    if (currentTerm === '' || defaultTerms.includes(currentTerm)) {
+                        termCell.textContent = newTerm;
+                        validateCell(termCell); 
+                    }
+                }
+            }
+
             if (isTutorialActive && row === elements.tableBody.firstElementChild && isValid && value !== '') {
                 showGuideText(3);
             }
@@ -461,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (currentMode === 'balance') {
             if (colIndex === 5) cell.classList.toggle('invalid', value && !isValidDateString(value)); // Start Date
-            if (colIndex === 6) cell.classList.toggle('invalid', value && !/^\d{2}$/.test(value)); // Time
+            if (colIndex === 6) cell.classList.toggle('invalid', value && !/^\d{1,2}$/.test(value)); // Time (changed to allow 1 or 2 digits)
             if (colIndex === 7) cell.classList.toggle('invalid', value && !/^\d{1,9},\d{2}$/.test(value)); // Value
         } else if (currentMode === 'withdrawal') {
             if (colIndex === 5) cell.classList.toggle('invalid', value && !/^\d{9}$/.test(value)); // ND Number
