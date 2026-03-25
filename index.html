@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         withdrawal: {
-            title: 'Генератор актів списання <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.1</span>',
+            title: 'Генератор актів списання <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.2</span>',
             templateUrls:[
                 'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p1.docx',
                 'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p2.docx'
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { selector: 'td:nth-child(6) .editable-cell.invalid', message: 'Помилка: "Номер НД" має містити рівно <b>9</b> цифр.' },
                 { selector: 'td:nth-child(7) .editable-cell.invalid, td:nth-child(8) .editable-cell.invalid', message: 'Помилка: Перевірте <b>дати</b>. Невірний формат або логіка.' },
                 { selector: 'td:nth-child(9) .editable-cell.invalid', message: 'Помилка: "Вартість" має формат <b>1234,56</b>.' },
-                { selector: 'td:nth-child(10) .editable-cell.invalid', message: "Помилка: \"Підписує\" має містити від 1 до 3 осіб у форматі <b>Ім'я ПРІЗВИЩЕ</b>, через кому." }
+                { selector: 'td:nth-child(10) .editable-cell.invalid', message: "Помилка: \"Підписує\" має містити від 1 до 2 осіб у форматі <b>Ім'я ПРІЗВИЩЕ</b>, через кому." }
             ],
             guideSteps:[ 
                 { text: "Введіть у першому полі від 5 до 7 цифр номеру патенту" },
