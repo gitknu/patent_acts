@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
@@ -16,6 +17,7 @@
             --error-bg: #f8d7da; --error-text: #721c24;
             --switch-bg: #e9ecef; --switch-handle: #fff;
             --secondary: #6c757d; --secondary-dark: #5a6268;
+            --csv-color: #198754; --csv-color-dark: #157347;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
         body { background-color: var(--background-color); color: var(--text-color); line-height: 1.5; padding: 15px; }
@@ -25,8 +27,7 @@
         .header-controls { display: flex; align-items: center; gap: 15px; flex-grow: 1; flex-wrap: wrap; }
         .switcher { display: flex; align-items: center; gap: 10px; }
         .switcher-label { font-weight: 500; color: var(--text-color); }
-        .toggle-switch { position: relative; display: inline-block; width: 140px; height: 34px;
-        }
+        .toggle-switch { position: relative; display: inline-block; width: 140px; height: 34px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--switch-bg); transition: .4s; border-radius: 34px; border: 1px solid var(--border-color); }
         .slider:before { position: absolute; content: ""; height: 26px; width: 55px; left: 4px; bottom: 3px; background-color: var(--switch-handle); transition: .4s; border-radius: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -57,11 +58,15 @@
         .editable-cell[data-placeholder]:empty:not(:focus):before { content: attr(data-placeholder); color: var(--light-text); opacity: .7; pointer-events: none; }
         .editable-cell:focus { border-color: var(--primary); background: var(--guide-bg); box-shadow: 0 0 0 2px rgba(0,123,255,.25); }
         .editable-cell.invalid { border-color: var(--error); box-shadow: 0 0 4px rgba(220,53,69,.4); }
+        .delete-cell { text-align: center; cursor: pointer; color: var(--error); font-weight: bold; user-select: none; opacity: 0.6; transition: opacity 0.2s; font-size: 1.2rem; }
+        .delete-cell:hover { opacity: 1; }
         .btn-container { text-align: center; margin-top: 20px; }
         .btn { background-color: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 5px; font-weight: 600; cursor: pointer; font-size: 1rem; display: inline-flex; align-items: center; gap: 8px; transition: background-color 0.3s; }
         .btn:hover { background-color: var(--primary-dark); }
         .btn.btn-secondary { background-color: var(--secondary); }
         .btn.btn-secondary:hover { background-color: var(--secondary-dark); }
+        .btn.btn-csv { background-color: var(--csv-color); }
+        .btn.btn-csv:hover { background-color: var(--csv-color-dark); }
         .btn-header { padding: 8px 15px; font-size: .9rem; }
         .notification { position: fixed; top: 20px; right: 20px; padding: 15px; border-radius: 5px; color: white; z-index: 1000; opacity: 0; transition: opacity .3s; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .notification.show { opacity: 1; display: block; }
@@ -107,7 +112,7 @@
     </style>
 </head>
 <body>
-<div id="drag-drop-overlay"><div>Перетягніть JSON файл сюди</div></div>
+<div id="drag-drop-overlay"><div>Перетягніть JSON або CSV файл сюди</div></div>
 <div class="container">
     <header>
         <div class="header-main">
@@ -119,6 +124,17 @@
                         <span class="slider"></span>
                     </label>
                 </div>
+                
+                <!-- Завантаження CSV -->
+                <input type="file" id="upload-csv-input" accept=".csv" style="display: none;">
+                <label for="upload-csv-input" id="upload-csv-btn" class="btn btn-csv btn-header">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-csv" viewBox="0 0 16 16">
+                     <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM3.517 14.841a1.13 1.13 0 0 0 .401.823c.13.108.289.192.478.252.19.061.411.091.665.091.338 0 .624-.053.859-.158.236-.105.416-.252.539-.44.125-.189.187-.408.187-.656 0-.224-.045-.41-.134-.56a1.001 1.001 0 0 0-.372-.357 2.027 2.027 0 0 0-.569-.21l-.62-.144a.97.97 0 0 1-.404-.176.37.37 0 0 1-.143-.299c0-.156.062-.284.185-.384.125-.101.296-.152.512-.152.143 0 .266.023.37.068a.624.624 0 0 1 .246.181.56.56 0 0 1 .12.258h.75a1.092 1.092 0 0 0-.2-1.551 1.636 1.636 0 0 0-.411-.237A1.815 1.815 0 0 0 4.962 11.5c-.328 0-.61.054-.847.163-.238.109-.42.257-.545.443-.125.187-.188.406-.188.656 0 .224.045.41.135.56.09.15.214.269.373.357.158.089.348.158.568.21l.621.144c.176.04.316.103.421.187.105.084.157.203.157.356 0 .17-.067.311-.2.423-.133.111-.318.167-.555.167-.222 0-.404-.05-.547-.152a.861.861 0 0 1-.295-.42H3.517Zm3.854.743c0 .351.055.66.164.928.11.268.266.486.467.653.201.168.441.286.721.355.28.07.585.104.915.104.332 0 .638-.035.918-.104.281-.069.522-.187.723-.355.202-.167.358-.385.469-.653.11-.268.165-.577.165-.928V12.2h-.777v2.384c0 .241-.033.453-.1.636-.067.183-.162.33-.284.442-.122.112-.27.193-.443.243a1.761 1.761 0 0 1-1.15 0 1.085 1.085 0 0 1-.444-.243 1.025 1.025 0 0 1-.285-.442 2.3 2.3 0 0 1-.1-.636V12.2h-.777v2.384Zm5.186-2.316V16h.776v-2.12l1.244 2.12h.858l-1.402-2.35 1.341-2.266h-.859l-1.182 2.05-1.182-2.05h-.856Z"/>
+                   </svg>
+                   Завантажити CSV
+                </label>
+
+                <!-- Завантаження JSON -->
                  <input type="file" id="upload-json-input" accept=".json" style="display: none;">
                  <label for="upload-json-input" id="upload-json-btn" class="btn btn-secondary btn-header">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>
@@ -177,7 +193,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const CONFIG = {
         balance: {
-            title: 'Генератор постановки на баланс <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.2</span>',
+            title: 'Генератор постановки на баланс <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.5</span>',
             templateUrls:[
                 'https://gitknu.github.io/patent_acts/input_patent_balance_p1.docx',
                 'https://gitknu.github.io/patent_acts/input_patent_balance_p2.docx',
@@ -215,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         withdrawal: {
-            title: 'Генератор актів списання <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.2</span>',
+            title: 'Генератор актів списання <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.5</span>',
             templateUrls:[
                 'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p1.docx',
                 'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p2.docx'
@@ -267,6 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         generateBtnTop: document.getElementById('generate-btn-top'),
         saveJsonBtn: document.getElementById('save-json-btn'),
         uploadJsonInput: document.getElementById('upload-json-input'),
+        uploadCsvInput: document.getElementById('upload-csv-input'),
         dragDropOverlay: document.getElementById('drag-drop-overlay'),
         notification: document.getElementById('notification'),
         filledRows: document.getElementById('filled-rows'),
@@ -293,6 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
              }
              return `<th>${h}</th>`;
         }).join('');
+        headerHTML += `<th style="width: 30px; text-align: center;" title="Дії">🗑️</th>`;
         elements.tableHeaderRow.innerHTML = headerHTML;
     }
     function initializeTable() {
@@ -320,8 +338,14 @@ document.addEventListener('DOMContentLoaded', () => {
         for(let i = 0; i < numCols; i++) {
             rowHTML += `<td><div class="editable-cell" contenteditable="true"></div></td>`;
         }
+        rowHTML += `<td class="delete-cell" title="Видалити рядок">✖</td>`;
         row.innerHTML = rowHTML;
         elements.tableBody.appendChild(row);
+    }
+    function updateRowNumbers() {
+        elements.tableBody.querySelectorAll('tr').forEach((row, index) => {
+            row.cells[0].textContent = index + 1;
+        });
     }
     function updateStatus() {
         const rows = elements.tableBody.querySelectorAll('tr');
@@ -427,6 +451,232 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.loader.classList.remove('active');
         }
     }
+    
+    // --- CSV LOGIC ---
+    function parseCSV(text) {
+        // Краще автовизначення роздільника (кома, крапка з комою, табуляція)
+        let sepSemi = text.split(';').length;
+        let sepComma = text.split(',').length;
+        let sepTab = text.split('\t').length;
+        let separator = ';';
+        if (sepComma > sepSemi && sepComma > sepTab) separator = ',';
+        if (sepTab > sepSemi && sepTab > sepComma) separator = '\t';
+
+        const result = [];
+        let row =[];
+        let cell = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < text.length; i++) {
+            const c = text[i];
+            if (c === '"') {
+                if (inQuotes && text[i+1] === '"') { cell += '"'; i++; } 
+                else { inQuotes = !inQuotes; }
+            } else if (c === separator && !inQuotes) {
+                row.push(cell.trim()); cell = '';
+            } else if ((c === '\n' || c === '\r') && !inQuotes) {
+                if (c === '\r' && text[i+1] === '\n') i++; 
+                row.push(cell.trim());
+                if (row.some(x => x !== '')) result.push(row);
+                row =[]; cell = '';
+            } else {
+                cell += c;
+            }
+        }
+        if (cell || row.length > 0) {
+            row.push(cell.trim());
+            if (row.some(x => x !== '')) result.push(row);
+        }
+        return result;
+    }
+
+    function processCsvData(rows) {
+        if (rows.length === 0) {
+            showNotification('Файл порожній', false);
+            return;
+        }
+
+        const config = CONFIG[currentMode];
+        const dataToInsert =[];
+        
+        let colMap = { name: -1, num_p: -1, value: -1, start: -1, num_db: -1 };
+        let headerRowIndex = -1;
+
+        // 1. Пошук заголовків (дуже агресивне очищення тексту від усього зайвого)
+        for (let r = 0; r < Math.min(50, rows.length); r++) {
+            let rowMatches = 0;
+            for (let c = 0; c < rows[r].length; c++) {
+                if (!rows[r][c]) continue;
+                let cellClean = rows[r][c].toLowerCase().replace(/[^а-яіїєґa-z]/g, '');
+                if (!cellClean) continue;
+
+                if (colMap.name === -1 && (cellClean.includes('найменування') || cellClean.includes('назва') || cellClean.includes('цінност'))) { colMap.name = c; rowMatches++; }
+                if (colMap.num_p === -1 && (cellClean.includes('інвентарн') || (cellClean.includes('номер') && !cellClean.includes('пп') && !cellClean.includes('зп') && !cellClean.includes('рядка')))) { colMap.num_p = c; rowMatches++; }
+                if (colMap.num_db === -1 && cellClean.includes('номернд')) { colMap.num_db = c; rowMatches++; }
+                if (colMap.value === -1 && (cellClean.includes('сума') || cellClean.includes('ціна') || cellClean.includes('вартіст') || cellClean.includes('балансов'))) { colMap.value = c; rowMatches++; }
+                if (colMap.start === -1 && (cellClean.includes('датавиг') || cellClean.includes('експл') || cellClean.includes('вводу'))) { colMap.start = c; rowMatches++; }
+            }
+            if (rowMatches > 0 && headerRowIndex === -1) {
+                headerRowIndex = r;
+            }
+        }
+
+        let useHeuristics = (colMap.name === -1 && colMap.num_p === -1);
+        
+        // 2. Ітерація по всіх рядках даних
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const rowStr = row.join(' ').toLowerCase();
+            
+            // Відкидаємо шапку, якщо заголовки знайдено
+            if (!useHeuristics && i <= headerRowIndex) continue;
+            
+            // Відкидаємо проміжні підсумки
+            if (rowStr.includes('разом') || rowStr.includes('всього') || rowStr.includes('підсумок') || rowStr.includes('дебет') || rowStr.replace(/[^а-яіїєґa-z]/g, '').includes('найменування')) continue;
+
+            let rowData = {};
+
+            if (!useHeuristics) {
+                // Стандартне витягування по знайдених індексах
+                let numP = colMap.num_p !== -1 && row[colMap.num_p] ? row[colMap.num_p].replace(/[^\d]/g, '') : '';
+                let name = colMap.name !== -1 && row[colMap.name] ? row[colMap.name].trim() : '';
+
+                if (!name && !numP) continue;
+
+                if (numP) rowData.num_p = numP;
+                if (name) rowData.name = name;
+                if (colMap.num_db !== -1 && row[colMap.num_db]) rowData.num_db = row[colMap.num_db].replace(/[^\d]/g, '');
+                
+                if (colMap.value !== -1 && row[colMap.value]) {
+                    let val = row[colMap.value].replace(/\s/g, '');
+                    if (val.includes('.')) val = val.replace('.', ',');
+                    if (/^\d+(,\d+)?$/.test(val)) {
+                        if (!val.includes(',')) val += ',00';
+                        else if (val.split(',')[1].length === 1) val += '0';
+                    }
+                    rowData.value = val;
+                }
+
+                if (colMap.start !== -1 && row[colMap.start]) {
+                    let d = row[colMap.start].trim();
+                    if (d && d !== '-') {
+                        const dMatch = d.match(/(\d{2})[./-](\d{2})[./-](\d{4})/);
+                        if (dMatch) rowData.start = `${dMatch[1]}.${dMatch[2]}.${dMatch[3]}`;
+                        else rowData.start = d;
+                    }
+                }
+                dataToInsert.push(rowData);
+            } else {
+                // БЕЗВІДМОВНИЙ РЕЖИМ (Heuristic Extraction):
+                // Якщо не змогли знайти заголовки таблиці, просто шукаємо дані за їх форматом
+                let bestNum = '';
+                let bestName = '';
+                let bestVal = '';
+
+                for (let c = 0; c < row.length; c++) {
+                    let cell = row[c].trim();
+                    if (!cell) continue;
+                    
+                    let cleanDigits = cell.replace(/[^\d]/g, '');
+                    let isLikelyDate = /^\d{2}[./-]\d{2}[./-]\d{4}$/.test(cell);
+
+                    // Якщо 5-9 цифр без ком і крапок — мабуть це Інвентарний номер
+                    if (!isLikelyDate && cleanDigits.length >= 5 && cleanDigits.length <= 9 && !cell.includes('.') && !cell.includes(',')) {
+                        if (!bestNum) bestNum = cleanDigits; 
+                    }
+                    // Якщо містить хоча б 5 літер — це Назва (беремо найдовшу таку колонку)
+                    else if (cell.length > 5 && /[а-яіїєґa-z]/i.test(cell) && !/^[0-9.,\s]+$/.test(cell)) {
+                        if (cell.length > bestName.length) bestName = cell; 
+                    }
+                    // Якщо формат числа (напр. 1000,00) — мабуть Сума
+                    else if (/^\d+([.,]\d{1,2})?$/.test(cell.replace(/\s/g, '')) && !isLikelyDate) {
+                        if (!bestVal) bestVal = cell.replace(/\s/g, '');
+                    }
+                }
+
+                if (bestNum || bestName) {
+                    if (bestNum) rowData.num_p = bestNum;
+                    if (bestName) rowData.name = bestName;
+                    if (bestVal) {
+                        let val = bestVal.replace('.', ',');
+                        if (!val.includes(',')) val += ',00';
+                        else if (val.split(',')[1].length === 1) val += '0';
+                        rowData.value = val;
+                    }
+                    dataToInsert.push(rowData);
+                }
+            }
+        }
+
+        if (dataToInsert.length === 0) {
+            showNotification('Не знайдено жодних даних у CSV (перевірте формат файлу)', false);
+            return;
+        }
+
+        let emptyRows =[];
+        elements.tableBody.querySelectorAll('tr').forEach(tr => {
+            const cells = tr.querySelectorAll('.editable-cell');
+            if (Array.from(cells).every(c => c.textContent.trim() === '')) {
+                emptyRows.push(tr);
+            }
+        });
+
+        let trIndex = 0;
+        dataToInsert.forEach((data) => {
+            let tr;
+            if (trIndex < emptyRows.length) {
+                tr = emptyRows[trIndex++];
+            } else {
+                if (elements.tableBody.rows.length >= MAX_ROWS) return;
+                addRow();
+                tr = elements.tableBody.lastElementChild;
+            }
+
+            const cells = tr.querySelectorAll('.editable-cell');
+            cells.forEach((cell, i) => {
+                const key = config.dataKeys[i];
+                if (data[key] !== undefined && data[key] !== '') {
+                    cell.textContent = data[key];
+                    validateCell(cell);
+                }
+            });
+        });
+
+        updateStatus();
+        showNotification(`Успішно завантажено ${dataToInsert.length} записів з CSV!`);
+    }
+
+    function loadCsvFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            let text = e.target.result;
+            
+            // Надійніша перевірка кодування (рахуємо кириличні символи)
+            let cyrillicCount = (text.match(/[А-Яа-яІіЇїЄєҐґ]/g) ||[]).length;
+            
+            // Якщо браузер "поламав" кодування (вивів ) або текст дуже довгий, а українських літер < 5, 
+            // отже це точно Windows-1251 з 1С/Excel, і ми його перечитуємо.
+            if (text.includes('') || (text.length > 100 && cyrillicCount < 5)) {
+                const reader1251 = new FileReader();
+                reader1251.onload = (e1251) => {
+                    processCsvData(parseCSV(e1251.target.result));
+                };
+                reader1251.readAsText(file, 'windows-1251');
+            } else {
+                processCsvData(parseCSV(text));
+            }
+        };
+        reader.readAsText(file, 'utf-8');
+    }
+
+    elements.uploadCsvInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) loadCsvFile(file);
+        e.target.value = null;
+    });
+    // --- END CSV LOGIC ---
+
     function saveTableDataAsJson() {
         const config = CONFIG[currentMode];
         const dataToSave =[];
@@ -728,6 +978,24 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.generateBtnTop.addEventListener('click', generateDocuments);
     elements.saveJsonBtn.addEventListener('click', saveTableDataAsJson);
     elements.uploadJsonInput.addEventListener('change', handleFileUpload);
+    
+    // Deletion Logic
+    elements.tableBody.addEventListener('click', e => {
+        if (e.target.classList.contains('delete-cell')) {
+            const row = e.target.closest('tr');
+            if (elements.tableBody.rows.length > 1) {
+                row.remove();
+                updateRowNumbers();
+                updateStatus();
+            } else {
+                row.querySelectorAll('.editable-cell').forEach(c => c.textContent = '');
+                const firstCell = row.querySelector('.editable-cell');
+                if (firstCell) validateCell(firstCell);
+                updateStatus();
+            }
+        }
+    });
+
     document.addEventListener('keydown', e => {
         if (e.key === 'Enter' && !e.target.classList.contains('editable-cell')) {
             e.preventDefault();
@@ -740,34 +1008,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     elements.tableBody.addEventListener('keydown', e => {
-    const cell = e.target;
-    if (!cell.classList.contains('editable-cell')) return;
-    if (e.key === 'Tab' && cell.classList.contains('invalid')) {
-        e.preventDefault();
-        checkRowForErrors(cell.closest('tr'));
-        return;
-    }
-    const td = cell.closest('td');
-    if (!td) return;
-    const colIndex = td.cellIndex;
-    if (colIndex === 3 && (e.key === 'Backspace' || e.key === 'Delete')) {
-        e.preventDefault();
-        cell.textContent = '';
-        validateCell(cell);
-        updateStatus();
-        return;
-    }
-    const isSpecialKey = e.key.length > 1; 
-    if (isSpecialKey || e.ctrlKey || e.metaKey || e.altKey) return; 
-    const colProps = CONFIG[currentMode].colProps[colIndex];
-    if (colProps) {
-        if (cell.textContent.length >= colProps.maxLength && window.getSelection().toString().length === 0) {
-             e.preventDefault();
-        }
-        if (colProps.allowedChars && !colProps.allowedChars.test(e.key)) {
+        const cell = e.target;
+        if (!cell.classList.contains('editable-cell')) return;
+        if (e.key === 'Tab' && cell.classList.contains('invalid')) {
             e.preventDefault();
+            checkRowForErrors(cell.closest('tr'));
+            return;
         }
-    }
+        const td = cell.closest('td');
+        if (!td) return;
+        const colIndex = td.cellIndex;
+        if (colIndex === 3 && (e.key === 'Backspace' || e.key === 'Delete')) {
+            e.preventDefault();
+            cell.textContent = '';
+            validateCell(cell);
+            updateStatus();
+            return;
+        }
+        const isSpecialKey = e.key.length > 1; 
+        if (isSpecialKey || e.ctrlKey || e.metaKey || e.altKey) return; 
+        const colProps = CONFIG[currentMode].colProps[colIndex];
+        if (colProps) {
+            if (cell.textContent.length >= colProps.maxLength && window.getSelection().toString().length === 0) {
+                 e.preventDefault();
+            }
+            if (colProps.allowedChars && !colProps.allowedChars.test(e.key)) {
+                e.preventDefault();
+            }
+        }
     });
     elements.tableBody.addEventListener('input', e => {
         const cell = e.target;
@@ -818,7 +1086,15 @@ document.addEventListener('DOMContentLoaded', () => {
         dragCounter = 0;
         elements.dragDropOverlay.classList.remove('visible');
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            loadFile(e.dataTransfer.files[0]);
+            const file = e.dataTransfer.files[0];
+            const nameLower = file.name.toLowerCase();
+            if (nameLower.endsWith('.csv')) {
+                loadCsvFile(file);
+            } else if (nameLower.endsWith('.json')) {
+                loadFile(file);
+            } else {
+                showNotification('Формат не підтримується. Завантажте JSON або CSV.', false);
+            }
             e.dataTransfer.clearData();
         }
     });
