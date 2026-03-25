@@ -178,15 +178,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     const CONFIG = {
         balance: {
-            title: 'Генератор постановки на баланс',
-            templateUrls: [
+            title: 'Генератор постановки на баланс <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.1</span>',
+            templateUrls:[
                 'https://gitknu.github.io/patent_acts/input_patent_balance_p1.docx',
                 'https://gitknu.github.io/patent_acts/input_patent_balance_p2.docx',
                 'https://gitknu.github.io/patent_acts/input_patent_balance_p3.docx'
             ],
-            headers: ['#', 'Статус', 'Номер', 'Тип', 'Назва', 'Початок', 'Строк', 'Вартість', 'Підписує'],
-            dataKeys: ['num_p', 'type', 'name', 'start', 'time', 'value', 'person'],
-            placeholders: ['123456', 'в/к/т', 'МАШИНА ЧАСУ', '01.01.2020', '20', '1000,00', "Тарас ШЕВЧЕНКО, Іван ФРАНКО"],
+            headers:['#', 'Статус', 'Номер', 'Тип', 'Назва', 'Початок', 'Строк', 'Вартість', 'Підписує'],
+            dataKeys:['num_p', 'type', 'name', 'start', 'time', 'value', 'person'],
+            placeholders:['123456', 'в/к/т', 'МАШИНА ЧАСУ', '01.01.2020', '20', '1000,00', "Тарас ШЕВЧЕНКО, Іван ФРАНКО"],
             colProps: { 
                 2: { maxLength: 7, allowedChars: /^\d$/ }, 
                 3: { maxLength: 1, allowedChars: /^[вкт]$/i }, 
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 7: { maxLength: 12, allowedChars: /^[\d,]$/ }, 
                 8: { maxLength: 150, allowedChars: /^[А-ЯІЇЄҐа-яіїєґ'\s,-]$/u }, 
             },
-            errorMessages: [
+            errorMessages:[
                 { selector: 'td:nth-child(3) .editable-cell.invalid', message: 'Помилка: "Номер" має містити від 5 до 7 <b>унікальних</b> цифр.' },
                 { selector: 'td:nth-child(4) .editable-cell.invalid', message: 'Помилка: "Тип" невірний. Введіть "в", "к" або "т".' },
                 { selector: 'td:nth-child(6) .editable-cell.invalid', message: 'Помилка: "Початок" має невірний формат <b>ДД.ММ.РРРР</b>.' },
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { selector: 'td:nth-child(8) .editable-cell.invalid', message: 'Помилка: "Вартість" має формат <b>1234,56</b>.' },
                 { selector: 'td:nth-child(9) .editable-cell.invalid', message: "Помилка: \"Підписує\" має містити від 1 до 3 осіб у форматі <b>Ім'я ПРІЗВИЩЕ</b>, через кому." },
             ],
-            guideSteps: [
+            guideSteps:[
                 { text: "Введіть у першому полі від 5 до 7 цифр номеру патенту" },
                 { text: "Чудово! Натисніть Tab для переходу далі" },
                 { text: "Тепер введіть 'в', 'к' або 'т' для вибору типу" },
@@ -216,29 +216,33 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         withdrawal: {
-            title: 'Генератор актів списання',
-            templateUrl: 'https://gitknu.github.io/patent_acts/input_patent_withdrawal.docx',
-            headers: ['#', 'Статус', 'Номер', 'Тип', 'Назва', 'Номер НД', 'Початок', 'Кінець', 'Вартість', 'Підписує'],
-            dataKeys: ['num_p', 'type', 'name', 'num_db', 'start', 'end', 'value', 'person'],
-            placeholders: ['123456', 'в/к/т', 'МАШИНА ЧАСУ', '123456789', '01.01.2000', '31.12.2020', '1000,00', 'Тарас ШЕВЧЕНКО'],
-             colProps: { // Properties by column index
-                2: { maxLength: 7, allowedChars: /^\d$/ }, // Номер
-                3: { maxLength: 1, allowedChars: /^[вкт]$/i }, // Тип
-                5: { maxLength: 9, allowedChars: /^\d$/ }, // Номер НД
-                6: { maxLength: 10, allowedChars: /^[\d.]$/ }, // Початок
-                7: { maxLength: 10, allowedChars: /^[\d.]$/ }, // Кінець
-                8: { maxLength: 12, allowedChars: /^[\d,]$/ }, // Вартість
-                9: { maxLength: 50, allowedChars: /^[А-ЯІЇЄҐа-яіїєґ'\s-]$/u }, // Підписує
+            title: 'Генератор актів списання <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.1</span>',
+            templateUrls:[
+                'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p1.docx',
+                'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p2.docx',
+                'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p3.docx'
+            ],
+            headers:['#', 'Статус', 'Номер', 'Тип', 'Назва', 'Номер НД', 'Початок', 'Кінець', 'Вартість', 'Підписує'],
+            dataKeys:['num_p', 'type', 'name', 'num_db', 'start', 'end', 'value', 'person'],
+            placeholders:['123456', 'в/к/т', 'МАШИНА ЧАСУ', '123456789', '01.01.2000', '31.12.2020', '1000,00', 'Тарас ШЕВЧЕНКО, Іван ФРАНКО'],
+             colProps: { 
+                2: { maxLength: 7, allowedChars: /^\d$/ }, 
+                3: { maxLength: 1, allowedChars: /^[вкт]$/i }, 
+                5: { maxLength: 9, allowedChars: /^\d$/ }, 
+                6: { maxLength: 10, allowedChars: /^[\d.]$/ }, 
+                7: { maxLength: 10, allowedChars: /^[\d.]$/ }, 
+                8: { maxLength: 12, allowedChars: /^[\d,]$/ }, 
+                9: { maxLength: 150, allowedChars: /^[А-ЯІЇЄҐа-яіїєґ'\s,-]$/u }, 
             },
-            errorMessages: [
+            errorMessages:[
                 { selector: 'td:nth-child(3) .editable-cell.invalid', message: 'Помилка: "Номер" має містити від 5 до 7 <b>унікальних</b> цифр.' },
                 { selector: 'td:nth-child(4) .editable-cell.invalid', message: 'Помилка: "Тип" невірний. Введіть "в", "к" або "т".' },
                 { selector: 'td:nth-child(6) .editable-cell.invalid', message: 'Помилка: "Номер НД" має містити рівно <b>9</b> цифр.' },
                 { selector: 'td:nth-child(7) .editable-cell.invalid, td:nth-child(8) .editable-cell.invalid', message: 'Помилка: Перевірте <b>дати</b>. Невірний формат або логіка.' },
                 { selector: 'td:nth-child(9) .editable-cell.invalid', message: 'Помилка: "Вартість" має формат <b>1234,56</b>.' },
-                { selector: 'td:nth-child(10) .editable-cell.invalid', message: 'Помилка: "Підписує" має формат <b>Ім\'я ПРІЗВИЩЕ</b>.' }
+                { selector: 'td:nth-child(10) .editable-cell.invalid', message: "Помилка: \"Підписує\" має містити від 1 до 3 осіб у форматі <b>Ім'я ПРІЗВИЩЕ</b>, через кому." }
             ],
-            guideSteps: [ // Same guide steps can be reused or customized
+            guideSteps:[ 
                 { text: "Введіть у першому полі від 5 до 7 цифр номеру патенту" },
                 { text: "Чудово! Натисніть Tab для переходу далі" },
                 { text: "Тепер введіть 'в', 'к' або 'т' для вибору типу" },
@@ -277,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isTutorialActive = true;
         currentTutorialStep = 0;
         const config = CONFIG[currentMode];
-        elements.title.textContent = config.title;
+        elements.title.innerHTML = config.title;
         elements.modeToggle.checked = (newMode === 'withdrawal');
         updateTableHeader();
         initializeTable();
@@ -359,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
         }
-        const dataToGenerate = [];
+        const dataToGenerate =[];
         elements.tableBody.querySelectorAll('tr').forEach(row => {
             const cells = row.querySelectorAll('.editable-cell');
             const rowData = {};
@@ -385,22 +389,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 let templateUrl;
                 const docData = { ...rowData };
 
-                if (currentMode === 'balance') {
-                    const people = rowData.person.split(',').map(p => p.trim()).filter(Boolean);
-                    const numPeople = people.length;
-                    if (numPeople < 1 || numPeople > 3) continue;
-                    
-                    templateUrl = config.templateUrls[numPeople - 1];
-                    
-                    delete docData.person;
-                    people.forEach((p, index) => {
-                        docData[`person_${index + 1}`] = p;
-                    });
-                    for (let j = numPeople; j < 3; j++) {
-                        docData[`person_${j + 1}`] = '';
-                    }
-                } else {
-                    templateUrl = config.templateUrl;
+                const people = rowData.person.split(',').map(p => p.trim()).filter(Boolean);
+                const numPeople = people.length;
+                if (numPeople < 1 || numPeople > 3) continue;
+                
+                templateUrl = config.templateUrls[numPeople - 1];
+                
+                delete docData.person;
+                people.forEach((p, index) => {
+                    docData[`person_${index + 1}`] = p;
+                });
+                for (let j = numPeople; j < 3; j++) {
+                    docData[`person_${j + 1}`] = '';
                 }
 
                 const templateContent = await new Promise((resolve, reject) => {
@@ -427,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function saveTableDataAsJson() {
         const config = CONFIG[currentMode];
-        const dataToSave = [];
+        const dataToSave =[];
 
         elements.tableBody.querySelectorAll('tr').forEach(row => {
             const cells = row.querySelectorAll('.editable-cell');
@@ -611,17 +611,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const personColIndex = CONFIG[currentMode].headers.indexOf('Підписує');
         if (colIndex === personColIndex) {
-            if (currentMode === 'balance') {
-                 if (value === '') {
-                    cell.classList.remove('invalid');
-                } else {
-                    const singlePersonRegex = /^[А-ЯІЇЄҐ][а-яіїєґ']+ [А-ЯІЇЄҐ'-]+$/u;
-                    const people = value.split(',').map(p => p.trim()).filter(p => p);
-                    const isValid = people.length >= 1 && people.length <= 3 && people.every(p => singlePersonRegex.test(p));
-                    cell.classList.toggle('invalid', !isValid);
-                }
-            } else { // withdrawal
-                cell.classList.toggle('invalid', value && !/^[А-ЯІЇЄҐ][а-яіїєґ']+ [А-ЯІЇЄҐ'-]+$/u.test(value));
+            if (value === '') {
+                cell.classList.remove('invalid');
+            } else {
+                const singlePersonRegex = /^[А-ЯІЇЄҐ][а-яіїєґ']+[А-ЯІЇЄҐ'-]+$/u;
+                const people = value.split(',').map(p => p.trim()).filter(p => p);
+                const isValid = people.length >= 1 && people.length <= 3 && people.every(p => singlePersonRegex.test(p));
+                cell.classList.toggle('invalid', !isValid);
             }
         }
         if (currentMode === 'balance') {
