@@ -6,7 +6,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.45.0/docxtemplater.js"></script>
     <script src="https://unpkg.com/pizzip@3.1.6/dist/pizzip.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
-    <script src="https://unpkg.com/pizzip@3.1.6/dist/pizzip-utils.js"></script>
     <style>
         :root {
             --primary: #007bff; --primary-dark: #0056b3;
@@ -193,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 5: { maxLength: 10, allowedChars: /^[\d.]$/ }, 
                 6: { maxLength: 2, allowedChars: /^\d$/ }, 
                 7: { maxLength: 12, allowedChars: /^[\d,]$/ }, 
-                8: { maxLength: 150 }, 
+                8: { maxLength: 150, allowedChars: /^[А-ЯІЇЄҐа-яіїєґ'\s,-]$/u }, 
             },
             errorMessages:[
                 { selector: 'td:nth-child(3) .editable-cell.invalid', message: 'Помилка: "Номер" має містити від 5 до 7 <b>унікальних</b> цифр.' },
@@ -219,8 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title: 'Генератор актів списання <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.1</span>',
             templateUrls:[
                 'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p1.docx',
-                'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p2.docx',
-                'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p3.docx'
+                'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p2.docx'
             ],
             headers:['#', 'Статус', 'Номер', 'Тип', 'Назва', 'Номер НД', 'Початок', 'Кінець', 'Вартість', 'Підписує'],
             dataKeys:['num_p', 'type', 'name', 'num_db', 'start', 'end', 'value', 'person'],
@@ -232,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 6: { maxLength: 10, allowedChars: /^[\d.]$/ }, 
                 7: { maxLength: 10, allowedChars: /^[\d.]$/ }, 
                 8: { maxLength: 12, allowedChars: /^[\d,]$/ }, 
-                9: { maxLength: 150 }, 
+                9: { maxLength: 150, allowedChars: /^[А-ЯІЇЄҐа-яіїєґ'\s,-]$/u }, 
             },
             errorMessages:[
                 { selector: 'td:nth-child(3) .editable-cell.invalid', message: 'Помилка: "Номер" має містити від 5 до 7 <b>унікальних</b> цифр.' },
@@ -385,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         elements.loader.classList.add('active');
         try {
-            for (const [i, rowData] of dataToGenerate.entries()) {
+            for (const[i, rowData] of dataToGenerate.entries()) {
                 let templateUrl;
                 const docData = { ...rowData };
 
@@ -403,12 +401,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     docData[`person_${j + 1}`] = '';
                 }
 
-                const templateContent = await new Promise((resolve, reject) => {
-                    PizZipUtils.getBinaryContent(templateUrl, (error, content) => {
-                        if (error) reject(new Error('Помилка завантаження шаблону.'));
-                        else resolve(content);
-                    });
-                });
+                let templateContent;
+                try {
+                    const response = await fetch(templateUrl);
+                    if (!response.ok) {
+                        throw new Error(`Файл не знайдено (код помилки: ${response.status}). Перевірте посилання: ${templateUrl}`);
+                    }
+                    templateContent = await response.arrayBuffer();
+                } catch (fetchError) {
+                    throw new Error(`Мережева помилка або файл недоступний: ${fetchError.message}`);
+                }
                 
                 const zip = new PizZip(templateContent);
                 const doc = new docxtemplater(zip, { delimiters: { start: '<', end: '>' } });
@@ -614,8 +616,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (value === '') {
                 cell.classList.remove('invalid');
             } else {
+                const singlePersonRegex = /^[А-ЯІЇЄҐ][а-яіїєґ']+\s+[А-ЯІЇЄҐ'-]+$/u;
                 const people = value.split(',').map(p => p.trim()).filter(p => p);
-                const isValid = people.length >= 1 && people.length <= 3;
+                const isValid = people.length >= 1 && people.length <= 3 && people.every(p => singlePersonRegex.test(p));
                 cell.classList.toggle('invalid', !isValid);
             }
         }
