@@ -128,6 +128,7 @@
 </head>
 <body>
 <datalist id="patent-types">
+    <option value="авторське свідоцтво"></option>
     <option value="винахід"></option>
     <option value="корисну модель"></option>
     <option value="торговельну марку"></option>
@@ -222,7 +223,7 @@ function setVal(cell, val) {
 document.addEventListener('DOMContentLoaded', () => {
     const CONFIG = {
         balance: {
-            title: 'Генератор постановки на баланс <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.6</span>',
+            title: 'Генератор постановки на баланс <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.7</span>',
             templateUrls:[
                 'https://gitknu.github.io/patent_acts/input_patent_balance_p1.docx',
                 'https://gitknu.github.io/patent_acts/input_patent_balance_p2.docx',
@@ -230,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ],
             headers:['#', 'Статус', 'Номер', 'Тип', 'Назва', 'Початок', 'Строк', 'Вартість', 'Підписує'],
             dataKeys:['num_p', 'type', 'name', 'start', 'time', 'value', 'person'],
-            placeholders:['123456', 'в/к/т', 'МАШИНА ЧАСУ', '01.01.2020', '20', '1000,00', "Тарас ШЕВЧЕНКО, Іван ФРАНКО"],
+            placeholders:['123456', 'а/в/к/т', 'МАШИНА ЧАСУ', '01.01.2020', '20', '1000,00', "Тарас ШЕВЧЕНКО, Іван ФРАНКО"],
             colProps: { 
                 2: { maxLength: 7, allowedChars: /^\d$/ }, 
                 5: { maxLength: 10, allowedChars: /^[\d.]$/ }, 
@@ -240,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             errorMessages:[
                 { selector: 'td:nth-child(3) .editable-cell.invalid', message: 'Помилка: "Номер" має містити від 5 до 7 <b>унікальних</b> цифр.' },
-                { selector: 'td:nth-child(4) .editable-cell.invalid', message: 'Помилка: "Тип" невірний. Виберіть зі списку або введіть "в", "к" чи "т".' },
+                { selector: 'td:nth-child(4) .editable-cell.invalid', message: 'Помилка: "Тип" невірний. Виберіть зі списку або введіть "а", "в", "к" чи "т".' },
                 { selector: 'td:nth-child(6) .editable-cell.invalid', message: 'Помилка: "Початок" має невірний формат <b>ДД.ММ.РРРР</b>.' },
                 { selector: 'td:nth-child(7) .editable-cell.invalid', message: 'Помилка: "Строк" має містити 1 або 2 цифри.' },
                 { selector: 'td:nth-child(8) .editable-cell.invalid', message: 'Помилка: "Вартість" має формат <b>1234,56</b>.' },
@@ -249,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
             guideSteps:[
                 { text: "Введіть у першому полі від 5 до 7 цифр номеру патенту" },
                 { text: "Чудово! Натисніть Tab для переходу далі" },
-                { text: "Тепер оберіть зі списку або введіть 'в', 'к' або 'т' для вибору типу" },
+                { text: "Тепер оберіть зі списку або введіть 'а', 'в', 'к' або 'т' для вибору типу" },
                 { text: "Добре. Для навігації використовуйте Tab та Shift + Tab" },
                 { text: "Заповніть решту полів у цьому рядку" },
                 { text: "Майже готово! Заповніть останнє поле у форматі 'Ім'я ПРІЗВИЩЕ'" },
@@ -259,14 +260,14 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         withdrawal: {
-            title: 'Генератор актів списання <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.6</span>',
+            title: 'Генератор актів списання <span style="font-size: 0.5em; color: var(--light-text); font-weight: normal; vertical-align: middle; margin-left: 10px;">v1.7</span>',
             templateUrls:[
                 'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p1.docx',
                 'https://gitknu.github.io/patent_acts/input_patent_withdrawal_p2.docx'
             ],
             headers:['#', 'Статус', 'Номер', 'Тип', 'Назва', 'Номер НД', 'Початок', 'Кінець', 'Вартість', 'Підписує'],
             dataKeys:['num_p', 'type', 'name', 'num_db', 'start', 'end', 'value', 'person'],
-            placeholders:['123456', 'в/к/т', 'МАШИНА ЧАСУ', '123456789', '01.01.2000', '31.12.2020', '1000,00', 'Тарас ШЕВЧЕНКО, Іван ФРАНКО'],
+            placeholders:['123456', 'а/в/к/т', 'МАШИНА ЧАСУ', '123456789', '01.01.2000', '31.12.2020', '1000,00', 'Тарас ШЕВЧЕНКО, Іван ФРАНКО'],
              colProps: { 
                 2: { maxLength: 7, allowedChars: /^\d$/ }, 
                 5: { maxLength: 9, allowedChars: /^\d$/ }, 
@@ -277,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             errorMessages:[
                 { selector: 'td:nth-child(3) .editable-cell.invalid', message: 'Помилка: "Номер" має містити від 5 до 7 <b>унікальних</b> цифр.' },
-                { selector: 'td:nth-child(4) .editable-cell.invalid', message: 'Помилка: "Тип" невірний. Виберіть зі списку або введіть "в", "к" чи "т".' },
+                { selector: 'td:nth-child(4) .editable-cell.invalid', message: 'Помилка: "Тип" невірний. Виберіть зі списку або введіть "а", "в", "к" чи "т".' },
                 { selector: 'td:nth-child(6) .editable-cell.invalid', message: 'Помилка: "Номер НД" має містити рівно <b>9</b> цифр.' },
                 { selector: 'td:nth-child(7) .editable-cell.invalid, td:nth-child(8) .editable-cell.invalid', message: 'Помилка: Перевірте <b>дати</b>. Невірний формат або логіка.' },
                 { selector: 'td:nth-child(9) .editable-cell.invalid', message: 'Помилка: "Вартість" має формат <b>1234,56</b>.' },
@@ -286,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             guideSteps:[ 
                 { text: "Введіть у першому полі від 5 до 7 цифр номеру патенту" },
                 { text: "Чудово! Натисніть Tab для переходу далі" },
-                { text: "Тепер оберіть зі списку або введіть 'в', 'к' або 'т' для вибору типу" },
+                { text: "Тепер оберіть зі списку або введіть 'а', 'в', 'к' або 'т' для вибору типу" },
                 { text: "Добре. Для навігації використовуйте Tab та Shift + Tab" },
                 { text: "Заповніть решту полів у цьому рядку" },
                 { text: "Майже готово! Заповніть останнє поле у форматі 'Ім'я ПРІЗВИЩЕ'" },
@@ -874,7 +875,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (colIndex === 3) {
             const v = value.toLowerCase();
-            const typeMap = { 'в': 'винахід', 'к': 'корисну модель', 'т': 'торговельну марку' };
+            const typeMap = { 'а': 'авторське свідоцтво', 'в': 'винахід', 'к': 'корисну модель', 'т': 'торговельну марку' };
             let fullType = value;
 
             if (v.length === 1 && typeMap[v]) {
