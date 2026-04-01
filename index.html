@@ -54,10 +54,25 @@
         .status-grey { background-color: var(--grey); }
         .status-red { background-color: var(--error); }
         .status-green { background-color: var(--success); }
+        
         .editable-cell { padding: 8px; min-height: 34px; outline: none; border: 1px solid transparent; border-radius: 4px; transition: all 0.2s ease-in-out; }
         .editable-cell[data-placeholder]:empty:not(:focus):before { content: attr(data-placeholder); color: var(--light-text); opacity: .7; pointer-events: none; }
-        .editable-cell:focus { border-color: var(--primary); background: var(--guide-bg); box-shadow: 0 0 0 2px rgba(0,123,255,.25); }
-        .editable-cell.invalid { border-color: var(--error); box-shadow: 0 0 4px rgba(220,53,69,.4); }
+        .editable-cell:focus, input.editable-cell:focus { border-color: var(--primary); background: var(--guide-bg); box-shadow: 0 0 0 2px rgba(0,123,255,.25); }
+        .editable-cell.invalid, input.editable-cell.invalid { border-color: var(--error); box-shadow: 0 0 4px rgba(220,53,69,.4); }
+        
+        input.editable-cell {
+            width: 100%;
+            font-family: inherit;
+            font-size: inherit;
+            color: inherit;
+            background: transparent;
+            box-sizing: border-box;
+        }
+        input.editable-cell::placeholder {
+            color: var(--light-text);
+            opacity: .7;
+        }
+
         .delete-cell { text-align: center; cursor: pointer; color: var(--error); font-weight: bold; user-select: none; opacity: 0.6; transition: opacity 0.2s; font-size: 1.2rem; }
         .delete-cell:hover { opacity: 1; }
         .btn-container { text-align: center; margin-top: 20px; }
@@ -112,6 +127,11 @@
     </style>
 </head>
 <body>
+<datalist id="patent-types">
+    <option value="винахід"></option>
+    <option value="корисну модель"></option>
+    <option value="торговельну марку"></option>
+</datalist>
 <div id="drag-drop-overlay"><div>Перетягніть JSON або CSV файл сюди</div></div>
 <div class="container">
     <header>
@@ -190,6 +210,15 @@
     <div class="loader-text">Генеруємо документи...</div>
 </div>
 <script>
+// Допоміжні функції для роботи як з input так і з contenteditable div
+function getVal(cell) {
+    return cell.tagName === 'INPUT' ? cell.value : cell.textContent;
+}
+function setVal(cell, val) {
+    if (cell.tagName === 'INPUT') cell.value = val;
+    else cell.textContent = val;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const CONFIG = {
         balance: {
@@ -204,7 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholders:['123456', 'в/к/т', 'МАШИНА ЧАСУ', '01.01.2020', '20', '1000,00', "Тарас ШЕВЧЕНКО, Іван ФРАНКО"],
             colProps: { 
                 2: { maxLength: 7, allowedChars: /^\d$/ }, 
-                3: { maxLength: 1, allowedChars: /^[вкт]$/i }, 
                 5: { maxLength: 10, allowedChars: /^[\d.]$/ }, 
                 6: { maxLength: 2, allowedChars: /^\d$/ }, 
                 7: { maxLength: 12, allowedChars: /^[\d,]$/ }, 
@@ -212,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             errorMessages:[
                 { selector: 'td:nth-child(3) .editable-cell.invalid', message: 'Помилка: "Номер" має містити від 5 до 7 <b>унікальних</b> цифр.' },
-                { selector: 'td:nth-child(4) .editable-cell.invalid', message: 'Помилка: "Тип" невірний. Введіть "в", "к" або "т".' },
+                { selector: 'td:nth-child(4) .editable-cell.invalid', message: 'Помилка: "Тип" невірний. Виберіть зі списку або введіть "в", "к" чи "т".' },
                 { selector: 'td:nth-child(6) .editable-cell.invalid', message: 'Помилка: "Початок" має невірний формат <b>ДД.ММ.РРРР</b>.' },
                 { selector: 'td:nth-child(7) .editable-cell.invalid', message: 'Помилка: "Строк" має містити 1 або 2 цифри.' },
                 { selector: 'td:nth-child(8) .editable-cell.invalid', message: 'Помилка: "Вартість" має формат <b>1234,56</b>.' },
@@ -221,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
             guideSteps:[
                 { text: "Введіть у першому полі від 5 до 7 цифр номеру патенту" },
                 { text: "Чудово! Натисніть Tab для переходу далі" },
-                { text: "Тепер введіть 'в', 'к' або 'т' для вибору типу" },
+                { text: "Тепер оберіть зі списку або введіть 'в', 'к' або 'т' для вибору типу" },
                 { text: "Добре. Для навігації використовуйте Tab та Shift + Tab" },
                 { text: "Заповніть решту полів у цьому рядку" },
                 { text: "Майже готово! Заповніть останнє поле у форматі 'Ім'я ПРІЗВИЩЕ'" },
@@ -241,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholders:['123456', 'в/к/т', 'МАШИНА ЧАСУ', '123456789', '01.01.2000', '31.12.2020', '1000,00', 'Тарас ШЕВЧЕНКО, Іван ФРАНКО'],
              colProps: { 
                 2: { maxLength: 7, allowedChars: /^\d$/ }, 
-                3: { maxLength: 1, allowedChars: /^[вкт]$/i }, 
                 5: { maxLength: 9, allowedChars: /^\d$/ }, 
                 6: { maxLength: 10, allowedChars: /^[\d.]$/ }, 
                 7: { maxLength: 10, allowedChars: /^[\d.]$/ }, 
@@ -250,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             errorMessages:[
                 { selector: 'td:nth-child(3) .editable-cell.invalid', message: 'Помилка: "Номер" має містити від 5 до 7 <b>унікальних</b> цифр.' },
-                { selector: 'td:nth-child(4) .editable-cell.invalid', message: 'Помилка: "Тип" невірний. Введіть "в", "к" або "т".' },
+                { selector: 'td:nth-child(4) .editable-cell.invalid', message: 'Помилка: "Тип" невірний. Виберіть зі списку або введіть "в", "к" чи "т".' },
                 { selector: 'td:nth-child(6) .editable-cell.invalid', message: 'Помилка: "Номер НД" має містити рівно <b>9</b> цифр.' },
                 { selector: 'td:nth-child(7) .editable-cell.invalid, td:nth-child(8) .editable-cell.invalid', message: 'Помилка: Перевірте <b>дати</b>. Невірний формат або логіка.' },
                 { selector: 'td:nth-child(9) .editable-cell.invalid', message: 'Помилка: "Вартість" має формат <b>1234,56</b>.' },
@@ -259,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
             guideSteps:[ 
                 { text: "Введіть у першому полі від 5 до 7 цифр номеру патенту" },
                 { text: "Чудово! Натисніть Tab для переходу далі" },
-                { text: "Тепер введіть 'в', 'к' або 'т' для вибору типу" },
+                { text: "Тепер оберіть зі списку або введіть 'в', 'к' або 'т' для вибору типу" },
                 { text: "Добре. Для навігації використовуйте Tab та Shift + Tab" },
                 { text: "Заповніть решту полів у цьому рядку" },
                 { text: "Майже готово! Заповніть останнє поле у форматі 'Ім'я ПРІЗВИЩЕ'" },
@@ -323,7 +350,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const placeholders = CONFIG[currentMode].placeholders;
         firstRowCells.forEach((cell, i) => {
             if (placeholders[i]) {
-                cell.setAttribute('data-placeholder', placeholders[i]);
+                if (cell.tagName === 'INPUT') cell.setAttribute('placeholder', placeholders[i]);
+                else cell.setAttribute('data-placeholder', placeholders[i]);
             }
         });
         const firstCell = elements.tableBody.querySelector('tr:first-child .editable-cell');
@@ -336,7 +364,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const numCols = CONFIG[currentMode].dataKeys.length;
         let rowHTML = `<td>${rowIndex + 1}</td><td><div class="status-light status-grey"></div></td>`;
         for(let i = 0; i < numCols; i++) {
-            rowHTML += `<td><div class="editable-cell" contenteditable="true"></div></td>`;
+            if (CONFIG[currentMode].dataKeys[i] === 'type') {
+                rowHTML += `<td><input type="text" class="editable-cell" list="patent-types"></td>`;
+            } else {
+                rowHTML += `<td><div class="editable-cell" contenteditable="true"></div></td>`;
+            }
         }
         rowHTML += `<td class="delete-cell" title="Видалити рядок">✖</td>`;
         row.innerHTML = rowHTML;
@@ -356,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let filledCellCount = 0;
             const hasInvalidCell = !!row.querySelector('.editable-cell.invalid');
             cells.forEach(cell => {
-                if (cell.textContent.trim() !== '') filledCellCount++;
+                if (getVal(cell).trim() !== '') filledCellCount++;
             });
             const isComplete = filledCellCount === cells.length && !hasInvalidCell;
             if (filledCellCount === 0) {
@@ -392,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let isRowComplete = true;
             let hasData = false;
             cells.forEach((cell, i) => {
-                const value = cell.textContent.trim();
+                const value = getVal(cell).trim();
                 rowData[config.dataKeys[i]] = value;
                 if (value !== '') hasData = true;
                 else isRowComplete = false;
@@ -454,7 +486,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- CSV LOGIC ---
     function parseCSV(text) {
-        // Краще автовизначення роздільника (кома, крапка з комою, табуляція)
         let sepSemi = text.split(';').length;
         let sepComma = text.split(',').length;
         let sepTab = text.split('\t').length;
@@ -502,7 +533,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let colMap = { name: -1, num_p: -1, value: -1, start: -1, num_db: -1 };
         let headerRowIndex = -1;
 
-        // 1. Пошук заголовків (дуже агресивне очищення тексту від усього зайвого)
         for (let r = 0; r < Math.min(50, rows.length); r++) {
             let rowMatches = 0;
             for (let c = 0; c < rows[r].length; c++) {
@@ -523,21 +553,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let useHeuristics = (colMap.name === -1 && colMap.num_p === -1);
         
-        // 2. Ітерація по всіх рядках даних
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
             const rowStr = row.join(' ').toLowerCase();
             
-            // Відкидаємо шапку, якщо заголовки знайдено
             if (!useHeuristics && i <= headerRowIndex) continue;
             
-            // Відкидаємо проміжні підсумки
             if (rowStr.includes('разом') || rowStr.includes('всього') || rowStr.includes('підсумок') || rowStr.includes('дебет') || rowStr.replace(/[^а-яіїєґa-z]/g, '').includes('найменування')) continue;
 
             let rowData = {};
 
             if (!useHeuristics) {
-                // Стандартне витягування по знайдених індексах
                 let numP = colMap.num_p !== -1 && row[colMap.num_p] ? row[colMap.num_p].replace(/[^\d]/g, '') : '';
                 let name = colMap.name !== -1 && row[colMap.name] ? row[colMap.name].trim() : '';
 
@@ -567,8 +593,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 dataToInsert.push(rowData);
             } else {
-                // БЕЗВІДМОВНИЙ РЕЖИМ (Heuristic Extraction):
-                // Якщо не змогли знайти заголовки таблиці, просто шукаємо дані за їх форматом
                 let bestNum = '';
                 let bestName = '';
                 let bestVal = '';
@@ -580,15 +604,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     let cleanDigits = cell.replace(/[^\d]/g, '');
                     let isLikelyDate = /^\d{2}[./-]\d{2}[./-]\d{4}$/.test(cell);
 
-                    // Якщо 5-9 цифр без ком і крапок — мабуть це Інвентарний номер
                     if (!isLikelyDate && cleanDigits.length >= 5 && cleanDigits.length <= 9 && !cell.includes('.') && !cell.includes(',')) {
                         if (!bestNum) bestNum = cleanDigits; 
                     }
-                    // Якщо містить хоча б 5 літер — це Назва (беремо найдовшу таку колонку)
                     else if (cell.length > 5 && /[а-яіїєґa-z]/i.test(cell) && !/^[0-9.,\s]+$/.test(cell)) {
                         if (cell.length > bestName.length) bestName = cell; 
                     }
-                    // Якщо формат числа (напр. 1000,00) — мабуть Сума
                     else if (/^\d+([.,]\d{1,2})?$/.test(cell.replace(/\s/g, '')) && !isLikelyDate) {
                         if (!bestVal) bestVal = cell.replace(/\s/g, '');
                     }
@@ -616,7 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let emptyRows =[];
         elements.tableBody.querySelectorAll('tr').forEach(tr => {
             const cells = tr.querySelectorAll('.editable-cell');
-            if (Array.from(cells).every(c => c.textContent.trim() === '')) {
+            if (Array.from(cells).every(c => getVal(c).trim() === '')) {
                 emptyRows.push(tr);
             }
         });
@@ -636,7 +657,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cells.forEach((cell, i) => {
                 const key = config.dataKeys[i];
                 if (data[key] !== undefined && data[key] !== '') {
-                    cell.textContent = data[key];
+                    setVal(cell, data[key]);
                     validateCell(cell);
                 }
             });
@@ -651,12 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const reader = new FileReader();
         reader.onload = (e) => {
             let text = e.target.result;
-            
-            // Надійніша перевірка кодування (рахуємо кириличні символи)
             let cyrillicCount = (text.match(/[А-Яа-яІіЇїЄєҐґ]/g) ||[]).length;
-            
-            // Якщо браузер "поламав" кодування (вивів ) або текст дуже довгий, а українських літер < 5, 
-            // отже це точно Windows-1251 з 1С/Excel, і ми його перечитуємо.
             if (text.includes('') || (text.length > 100 && cyrillicCount < 5)) {
                 const reader1251 = new FileReader();
                 reader1251.onload = (e1251) => {
@@ -687,7 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let hasData = false;
 
             cells.forEach((cell, i) => {
-                const value = cell.textContent.trim();
+                const value = getVal(cell).trim();
                 if (value) hasData = true;
                 rowData[config.dataKeys[i]] = value;
             });
@@ -737,7 +753,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cells.forEach((cell, i) => {
                 const key = dataKeys[i];
                 if (rowData[key] !== undefined) {
-                    cell.textContent = rowData[key];
+                    setVal(cell, rowData[key]);
                 }
             });
         });
@@ -795,42 +811,83 @@ document.addEventListener('DOMContentLoaded', () => {
         const td = cell.closest('td');
         if (!td || !row) return;
         const colIndex = td.cellIndex;
-        const value = cell.textContent.trim();
+        let value = getVal(cell).trim();
+
+        const valueColIndex = CONFIG[currentMode].headers.indexOf('Вартість');
+        const startDateColIndex = CONFIG[currentMode].headers.indexOf('Початок');
+        const endDateColIndex = CONFIG[currentMode].headers.indexOf('Кінець');
+
+        // Очищення дат від літери "р." або "р" у кінці
+        if (colIndex === startDateColIndex || (endDateColIndex > -1 && colIndex === endDateColIndex)) {
+            let currentVal = getVal(cell);
+            if (/р\.?$/i.test(currentVal)) {
+                currentVal = currentVal.replace(/\s*р\.?$/i, '').trim();
+                setVal(cell, currentVal);
+                value = currentVal; 
+            }
+        }
+
+        if (colIndex === valueColIndex || colIndex === startDateColIndex || (endDateColIndex > -1 && colIndex === endDateColIndex) ) {
+            const separator = (colIndex === valueColIndex) ? ',' : '.';
+            const wrongSeparator = (separator === ',') ? '.' : ',';
+            if (getVal(cell).includes(wrongSeparator)) {
+                if (cell.tagName === 'INPUT') {
+                    const start = cell.selectionStart;
+                    cell.value = cell.value.replace(new RegExp(`\\${wrongSeparator}`, 'g'), separator);
+                    cell.setSelectionRange(start, start);
+                } else {
+                    const selection = window.getSelection();
+                    const offset = selection.rangeCount > 0 ? selection.getRangeAt(0).startOffset : 0;
+                    cell.textContent = cell.textContent.replace(new RegExp(`\\${wrongSeparator}`, 'g'), separator);
+                    if (cell.firstChild) {
+                        const newOffset = Math.min(offset, cell.firstChild.length);
+                        const newRange = document.createRange();
+                        newRange.setStart(cell.firstChild, newOffset);
+                        newRange.collapse(true);
+                        selection.removeAllRanges();
+                        selection.addRange(newRange);
+                    }
+                }
+            }
+        }
+
         if (colIndex === 2) { 
             const cells = elements.tableBody.querySelectorAll('td:nth-child(3) .editable-cell');
             const values = {};
             cells.forEach(c => {
-                const v = c.textContent.trim();
+                const v = getVal(c).trim();
                 if (v) {
                     if (!values[v]) values[v] = { count: 0 };
                     values[v].count++;
                 }
             });
             cells.forEach(c => {
-                const t = c.textContent.trim();
+                const t = getVal(c).trim();
                 const isLengthInvalid = t && !/^\d{5,7}$/.test(t);
                 const isDuplicate = t && values[t] && values[t].count > 1;
                 c.classList.toggle('invalid', isLengthInvalid || isDuplicate);
             });
             const firstCell = elements.tableBody.querySelector('tr:first-child td:nth-child(3) .editable-cell');
-            if (firstCell && !firstCell.classList.contains('invalid') && firstCell.textContent.length >= 5) {
+            if (firstCell && !firstCell.classList.contains('invalid') && getVal(firstCell).length >= 5) {
                 showGuideText(1);
             }
         }
         if (colIndex === 3) {
-            const v = cell.textContent.trim().toLowerCase();
+            const v = value.toLowerCase();
             const typeMap = { 'в': 'винахід', 'к': 'корисну модель', 'т': 'торговельну марку' };
-            let fullType = cell.textContent.trim();
+            let fullType = value;
 
             if (v.length === 1 && typeMap[v]) {
                 fullType = typeMap[v];
-                cell.textContent = fullType;
-                const range = document.createRange();
-                const sel = window.getSelection();
-                range.selectNodeContents(cell);
-                range.collapse(false);
-                sel.removeAllRanges();
-                sel.addRange(range);
+                setVal(cell, fullType);
+                if (cell.tagName !== 'INPUT') {
+                    const range = document.createRange();
+                    const sel = window.getSelection();
+                    range.selectNodeContents(cell);
+                    range.collapse(false);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
             }
 
             const validTypes = Object.values(typeMap);
@@ -848,9 +905,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const termCell = row.querySelector('td:nth-child(7) .editable-cell');
 
                 if (termCell && newTerm) {
-                    const currentTerm = termCell.textContent.trim();
+                    const currentTerm = getVal(termCell).trim();
                     if (currentTerm === '' || defaultTerms.includes(currentTerm)) {
-                        termCell.textContent = newTerm;
+                        setVal(termCell, newTerm);
                         validateCell(termCell); 
                     }
                 }
@@ -881,26 +938,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (colIndex === 6 || colIndex === 7) validateDateRow(row); // Start/End Date
             if (colIndex === 8) cell.classList.toggle('invalid', value && !/^\d{1,9},\d{2}$/.test(value)); // Value
         }
-        const valueColIndex = CONFIG[currentMode].headers.indexOf('Вартість');
-        const startDateColIndex = CONFIG[currentMode].headers.indexOf('Початок');
-        const endDateColIndex = CONFIG[currentMode].headers.indexOf('Кінець');
-        if (colIndex === valueColIndex || colIndex === startDateColIndex || (endDateColIndex > -1 && colIndex === endDateColIndex) ) {
-            const separator = (colIndex === valueColIndex) ? ',' : '.';
-            const wrongSeparator = (separator === ',') ? '.' : ',';
-            if (cell.textContent.includes(wrongSeparator)) {
-                const selection = window.getSelection();
-                const offset = selection.getRangeAt(0).startOffset;
-                cell.textContent = cell.textContent.replace(new RegExp(`\\${wrongSeparator}`, 'g'), separator);
-                if (cell.firstChild) {
-                    const newOffset = Math.min(offset, cell.firstChild.length);
-                    const newRange = document.createRange();
-                    newRange.setStart(cell.firstChild, newOffset);
-                    newRange.collapse(true);
-                    selection.removeAllRanges();
-                    selection.addRange(newRange);
-                }
-            }
-        }
     }
     function validateDateRow(row) {
         if (currentMode !== 'withdrawal') return;
@@ -908,8 +945,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const endCell = row.querySelector('td:nth-child(8) .editable-cell');
         const typeCell = row.querySelector('td:nth-child(4) .editable-cell');
         if (!startCell || !endCell || !typeCell) return;
-        const startString = startCell.textContent.trim();
-        const endString = endCell.textContent.trim();
+        const startString = getVal(startCell).trim();
+        const endString = getVal(endCell).trim();
         startCell.classList.remove('invalid');
         endCell.classList.remove('invalid');
         const isStartValid = startString === '' || isValidDateString(startString);
@@ -988,7 +1025,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateRowNumbers();
                 updateStatus();
             } else {
-                row.querySelectorAll('.editable-cell').forEach(c => c.textContent = '');
+                row.querySelectorAll('.editable-cell').forEach(c => setVal(c, ''));
                 const firstCell = row.querySelector('.editable-cell');
                 if (firstCell) validateCell(firstCell);
                 updateStatus();
@@ -1020,7 +1057,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const colIndex = td.cellIndex;
         if (colIndex === 3 && (e.key === 'Backspace' || e.key === 'Delete')) {
             e.preventDefault();
-            cell.textContent = '';
+            setVal(cell, '');
             validateCell(cell);
             updateStatus();
             return;
@@ -1029,7 +1066,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isSpecialKey || e.ctrlKey || e.metaKey || e.altKey) return; 
         const colProps = CONFIG[currentMode].colProps[colIndex];
         if (colProps) {
-            if (cell.textContent.length >= colProps.maxLength && window.getSelection().toString().length === 0) {
+            const currentLen = getVal(cell).length;
+            const selLen = cell.tagName === 'INPUT' ? 
+                (cell.selectionEnd - cell.selectionStart) : 
+                window.getSelection().toString().length;
+
+            if (currentLen >= colProps.maxLength && selLen === 0) {
                  e.preventDefault();
             }
             if (colProps.allowedChars && !colProps.allowedChars.test(e.key)) {
